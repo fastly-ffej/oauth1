@@ -44,13 +44,18 @@ func (c *Config) Client(ctx context.Context, t *Token) *http.Client {
 	return NewClient(ctx, c, t)
 }
 
-// NewClient returns a new http Client which signs requests via OAuth1.
-func NewClient(ctx context.Context, config *Config, token *Token) *http.Client {
-	transport := &Transport{
+// NewTransport returns a new http Transport which signs requests via OAuth1.
+func NewTransport(ctx context.Context, config *Config, token *Token) *Transport {
+	return &Transport{
 		Base:   contextTransport(ctx),
 		source: StaticTokenSource(token),
 		auther: newAuther(config),
 	}
+}
+
+// NewClient returns a new http Client which signs requests via OAuth1.
+func NewClient(ctx context.Context, config *Config, token *Token) *http.Client {
+	transport := NewTransport(ctx, config, token)
 	return &http.Client{Transport: transport}
 }
 
